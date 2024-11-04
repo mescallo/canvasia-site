@@ -2,17 +2,18 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Instalar dependencias
+# Copiar archivos de configuración
 COPY package*.json ./
+COPY tsconfig*.json ./
+COPY postcss.config.js ./
+COPY tailwind.config.js ./
+COPY index.html ./
+COPY vite.config.ts ./
+
+# Instalar dependencias
 RUN npm install
 
-# Copiar archivos de configuración primero
-COPY postcss.config.js .
-COPY tailwind.config.js .
-COPY tsconfig.json .
-COPY index.html .
-
-# Copiar el resto del código
+# Copiar código fuente
 COPY src/ src/
 
 # Construir la aplicación
