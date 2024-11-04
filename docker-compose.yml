@@ -1,0 +1,31 @@
+version: '3.8'
+
+networks:
+  coolify:
+    external: true
+
+services:
+  app:
+    build: .
+    container_name: canvasia-website
+    networks:
+      - coolify
+    expose:
+      - 4173
+    labels:
+      - "traefik.enable=true"
+      # Solo para canvasia.co
+      - "traefik.http.routers.canvasia.rule=Host(`canvasia.co`)"
+      - "traefik.http.services.canvasia.loadbalancer.server.port=4173"
+      - "traefik.http.routers.canvasia.entrypoints=websecure"
+      - "traefik.http.routers.canvasia.tls=true"
+      - "traefik.http.routers.canvasia.tls.certresolver=letsencrypt"
+      # Redirección de www a no-www
+      - "traefik.http.middlewares.www-redirect.redirectregex.regex=^https://www.canvasia.co/(.*)"
+      - "traefik.http.middlewares.www-redirect.redirectregex.replacement=https://canvasia.co/$${1}"
+      - "traefik.http.routers.canvasia.middlewares=www-redirect"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:4173"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
