@@ -10,7 +10,7 @@ RUN npm install
 
 # Copiar archivos de configuración
 COPY tsconfig*.json ./
-COPY postcss.config.js ./
+COPY postcss.config.cjs ./    # Cambiado de .js a .cjs
 COPY tailwind.config.js ./
 COPY vite.config.ts ./
 COPY index.html ./
