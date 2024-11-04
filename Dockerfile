@@ -2,16 +2,24 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copiar archivos de configuración
+# Copiar solo package.json primero
 COPY package*.json ./
+
+# Instalar todas las dependencias incluyendo devDependencies
+RUN npm install --include=dev
+
+# Instalar TailwindCSS específicamente
+RUN npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
+
+# Inicializar TailwindCSS
+RUN npx tailwindcss init -p
+
+# Copiar archivos de configuración
 COPY tsconfig*.json ./
 COPY postcss.config.js ./
 COPY tailwind.config.js ./
-COPY index.html ./
 COPY vite.config.ts ./
-
-# Instalar dependencias
-RUN npm install
+COPY index.html ./
 
 # Copiar código fuente
 COPY src/ src/
