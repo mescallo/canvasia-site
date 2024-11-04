@@ -1,9 +1,7 @@
 version: '3.8'
-
 networks:
   coolify:
     external: true
-
 services:
   app:
     build: .
@@ -14,16 +12,26 @@ services:
       - 4173
     labels:
       - "traefik.enable=true"
-      # Solo para canvasia.co
+      # Configuración básica
       - "traefik.http.routers.canvasia.rule=Host(`canvasia.co`)"
       - "traefik.http.services.canvasia.loadbalancer.server.port=4173"
+      
+      # Configuración HTTPS
       - "traefik.http.routers.canvasia.entrypoints=websecure"
       - "traefik.http.routers.canvasia.tls=true"
       - "traefik.http.routers.canvasia.tls.certresolver=letsencrypt"
+      
+      # Redirección HTTP a HTTPS
+      - "traefik.http.routers.canvasia-http.rule=Host(`canvasia.co`)"
+      - "traefik.http.routers.canvasia-http.entrypoints=web"
+      - "traefik.http.routers.canvasia-http.middlewares=to-https"
+      - "traefik.http.middlewares.to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.to-https.redirectscheme.permanent=true"
+      
       # Redirección de www a no-www
       - "traefik.http.middlewares.www-redirect.redirectregex.regex=^https://www.canvasia.co/(.*)"
       - "traefik.http.middlewares.www-redirect.redirectregex.replacement=https://canvasia.co/$${1}"
-      - "traefik.http.routers.canvasia.middlewares=www-redirect"
+      - "traefik.http.routers.canvasia.middlewares=www-redirect,to-https"
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:4173"]
       interval: 10s
