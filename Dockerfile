@@ -2,18 +2,24 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Instalar las dependencias
+# Instalar dependencias
 COPY package*.json ./
 RUN npm install
 
-# Copiar el código fuente
-COPY . .
+# Copiar archivos de configuración primero
+COPY postcss.config.js .
+COPY tailwind.config.js .
+COPY tsconfig.json .
+COPY index.html .
+
+# Copiar el resto del código
+COPY src/ src/
 
 # Construir la aplicación
 RUN npm run build
 
-# Exponer el puerto
+# Exponer puerto
 EXPOSE 4173
 
-# Modificar el comando de inicio para usar la ruta completa
-CMD ["sh", "-c", "node_modules/.bin/vite preview --host 0.0.0.0 --port 4173"]
+# Iniciar la aplicación
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4173"]
